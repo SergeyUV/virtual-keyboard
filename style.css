@@ -1,0 +1,35 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body{
+    display: flex;
+    flex-flow: column;
+}
+
+.myInput{
+    width: 740px;
+}
+
+.vKeyboard{
+    display: flex;
+    flex-flow: column;
+    width: 740px;
+}
+
+.KeyboardRow{
+    display: flex;
+    flex-flow: row;
+    align-content: space-between;
+    height: 50px;
+}
+
+.vKey{
+    display: flex;
+    align-content: center;
+    justify-items: center;
+    border-radius: 10px;
+    border: 1px solid black;
+}
