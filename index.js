@@ -279,14 +279,19 @@ class cVKeyboard {
   
   keyDownEventListener(evt){
     const vKey = document.getElementById(`Key_${evt.code}`);
-    vKey.classList.add('pressedKey');
+    if(vKey){
+      vKey.classList.add('pressedKey');
+    }
+    
+    evt.preventDefault();
   }
 
   keyUpEventListener(evt){
     const vKey = document.getElementById(`Key_${evt.code}`);
-    vKey.classList.remove('pressedKey');
-    
-    //evt.preventDefault();
+    if(vKey){
+      vKey.classList.remove('pressedKey');
+    }
+    evt.preventDefault();
     
   }
 
