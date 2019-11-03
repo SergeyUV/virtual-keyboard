@@ -335,6 +335,24 @@ class cVKeyboard {
         up: (evt) => {
           this.setNoPressed(evt);
           this.leftCtrlPressed = false;
+        },
+        mouseDown: (evt) => {
+          this.setPressed(evt);
+          //this.leftCtrlPressed = true;
+        },
+        mouseUp: (evt) => {
+          this.setNoPressed(evt);
+          //this.leftCtrlPressed = false;
+        },
+        
+        mouseClick: (evt) =>{
+          if(this.leftCtrlPressed){
+            this.setNoPressed(evt);
+            this.leftCtrlPressed = false;
+          }else{
+            this.setPressed(evt);
+            this.leftCtrlPressed = true;
+          }
         }
       },
 
@@ -398,10 +416,59 @@ class cVKeyboard {
         up: (evt) => {
           this.setNoPressed(evt);
         },
-        mouseClick: () =>{
+        mouseClick: (evt) =>{
           this.removeCharRight();
         }
+      },
+      ArrowUp: {
+        down: (evt) => {
+          this.setPressed(evt);
+        },
+        
+        up: (evt) => {
+          this.setNoPressed(evt);
+        },
+        mouseClick: () =>{
+          
+        }
+      },
+      ArrowDown: {
+        down: (evt) => {
+          this.setPressed(evt);
+        },
+        
+        up: (evt) => {
+          this.setNoPressed(evt);
+        },
+        mouseClick: () =>{
+    
+        }
+      },
+      ArrowLeft: {
+        down: (evt) => {
+          this.setPressed(evt);
+        },
+        
+        up: (evt) => {
+          this.setNoPressed(evt);
+        },
+        mouseClick: () =>{
+    
+        }
+      },
+      ArrowRight: {
+        down: (evt) => {
+          this.setPressed(evt);
+        },
+        
+        up: (evt) => {
+          this.setNoPressed(evt);
+        },
+        mouseClick: () =>{
+    
+        }
       }
+
     }
     
     this.makeDOM();
@@ -491,6 +558,7 @@ class cVKeyboard {
     } 
     this.lang = langs[langIndex];
     sessionStorage.setItem('vKeyboardLang',this.lang);
+    this.keyUpEventListener({code:'ControlLeft'});
   }
 
   keyDownEventListener(evt){
@@ -533,24 +601,32 @@ class cVKeyboard {
 
   onKeyMousedownEventListener(evt){
     const evt_code = evt.srcElement.id.split('_')[1];
-    this.keyDownEventListener({code: evt_code});
-    if(evt.preventDefault){
+    if( (evt_code in this.specKeysFunctions) && 'mouseDown' in this.specKeysFunctions[evt_code]){
+      this.specKeysFunctions[evt_code].mouseDown({code: evt_code});
+    }else{
+      this.keyDownEventListener({code: evt_code});
+      if(evt.preventDefault){
       evt.preventDefault();
-    };
+    }
+  }
   }
   
   onKeyMouseupEventListener(evt){
     const evt_code = evt.srcElement.id.split('_')[1];
-    this.keyUpEventListener({code: evt_code});
-    if(evt.preventDefault){
-      evt.preventDefault();
-    };
+    if( (evt_code in this.specKeysFunctions) && 'mouseUp' in this.specKeysFunctions[evt_code]){
+      this.specKeysFunctions[evt_code].mouseUp({code: evt_code});
+    }else{
+      this.keyUpEventListener({code: evt_code});
+      if(evt.preventDefault){
+        evt.preventDefault();
+      }
+  }
   }
 
    onKeyMouseclickEventListener(evt){
     const evt_code = evt.srcElement.id.split('_')[1];
     if( (evt_code in this.specKeysFunctions) && 'mouseClick' in this.specKeysFunctions[evt_code]){
-      this.specKeysFunctions[evt_code].mouseClick();
+      this.specKeysFunctions[evt_code].mouseClick({code: evt_code});
     }else{
       this.keyPressEventListener({code: evt_code});
     }
