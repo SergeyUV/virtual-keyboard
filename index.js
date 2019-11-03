@@ -272,10 +272,7 @@ class cVKeyboard {
             ['Space', 'Left CTRL + Left Shift  for language switch', 'Left CTRL + Left Shift  for language switch'], 
             ['AltRight', 'Alt','Alt'], ['ControlRight', 'Ctrl','Ctrl'],
             ['ArrowLeft','left','left'], ['ArrowDown', 'down','down'], ['ArrowRight', 'right','right']
-           ],
-
-
-        
+           ]
       };
     
     this.specKeysFunctions = {
@@ -451,7 +448,13 @@ class cVKeyboard {
           this.setNoPressed(evt);
         },
         mouseClick: () =>{
-    
+          const cursorPosition = this.elText.selectionStart;
+          if(cursorPosition == 0){
+            return;
+          }
+          this.elText.selectionStart = cursorPosition-1;
+          this.elText.selectionEnd = cursorPosition-1;
+
         }
       },
       ArrowRight: {
@@ -463,10 +466,14 @@ class cVKeyboard {
           this.setNoPressed(evt);
         },
         mouseClick: () =>{
-    
+          const cursorPosition = this.elText.selectionStart;
+          if(cursorPosition == this.elText.selectionStart.length){
+            return;
+          }
+          this.elText.selectionStart = cursorPosition + 1;
+          this.elText.selectionEnd = cursorPosition + 1;
         }
       }
-
     }
     
     this.makeDOM();
@@ -636,7 +643,6 @@ class cVKeyboard {
       evt.preventDefault();
     };
     this.elText.focus();
-    console.log(this.elText.selectionStart);
   }
 
   putCharToText(char){
