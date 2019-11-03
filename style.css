@@ -24,7 +24,6 @@ body{
     height: 25vh;
     max-height: 240px;
     margin-top: 30px;
-    border: 1px solid gray;
 }
 
 .KeyboardRow{
@@ -55,4 +54,5 @@ body{
 
 .pressedKey{
     background-color: cornflowerblue;
+    border-radius: 40%;
 }
