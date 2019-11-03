@@ -587,7 +587,9 @@ class cVKeyboard {
   keyPressEventListener(evt){
     if (!(evt.code in this.specKeysFunctions)){
       const vKey = document.getElementById(`Key_${evt.code}`);
-      this.putCharToText(vKey.innerText);
+      if(vKey){
+        this.putCharToText(vKey.innerText);
+      }
       if(evt.preventDefault){
         evt.preventDefault();
       };
@@ -647,13 +649,25 @@ class cVKeyboard {
   }
 
   removeCharLeft(){
-    let arr = Array.from(this.elText.value);
-    arr.pop();
-    this.elText.value = arr.join('');
+    const cursorPosition = this.elText.selectionStart;
+    if(cursorPosition == 0){
+      return;
+    }
+    let startStr = this.elText.value.slice(0,cursorPosition-1);
+    this.elText.value = startStr + this.elText.value.slice(cursorPosition,this.elText.value.length);
+    this.elText.selectionStart = cursorPosition-1;
+    this.elText.selectionEnd = cursorPosition-1;
   }
   
   removeCharRight(){
-   this.removeCharLeft();
+    const cursorPosition = this.elText.selectionStart;
+    if(cursorPosition == this.elText.selectionStart.length){
+      return;
+    }
+    let startStr = this.elText.value.slice(0,cursorPosition);
+    this.elText.value = startStr + this.elText.value.slice(cursorPosition+1,this.elText.value.length);
+    this.elText.selectionStart = cursorPosition;
+    this.elText.selectionEnd = cursorPosition;
   }
 
   myXOR (a, b){
