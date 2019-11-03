@@ -254,7 +254,9 @@ class cVKeyboard {
              ['KeyJ','j'], ['KeyK','k'], ['KeyL','l'], ['Semicolon',';',':'], ['Quote','\'','"'], ['Enter','Enter', 'Enter'],
              ['ShiftLeft','Shift','Shift'], ['KeyZ','z'], ['KeyX','x'],['KeyC','c'], ['KeyV','v'], ['KeyB','b'], ['KeyN','n'],
              ['KeyM', 'm'], ['Comma',',','<'], ['Period','.','>'], ['Slash','/','?'], ['ArrowUp','up','up'], ['ShiftRight', 'Shift','Shift'],
-             ['ControlLeft','Ctrl','Ctrl'], ['AltLeft','Alt','Alt'], ['Space', '', ''], ['AltRight', 'Alt','Alt'], ['ControlRight', 'Ctrl','Ctrl'],
+             ['ControlLeft','Ctrl','Ctrl'], ['AltLeft','Alt','Alt'], 
+             ['Space', 'Left CTRL + Left Shift  for language switch', 'Left CTRL + Left Shift  for language switch'], 
+             ['AltRight', 'Alt','Alt'], ['ControlRight', 'Ctrl','Ctrl'],
              ['ArrowLeft','left','left'], ['ArrowDown', 'down','down'], ['ArrowRight', 'right','right']
             ],
         ru: [['Backquote', 'ё'], ['Digit1','1','!'], ['Digit2','2','"'], ['Digit3','3','№'], ['Digit4','4',';'], ['Digit5','5','%'],
@@ -266,7 +268,9 @@ class cVKeyboard {
             ['KeyJ','о'], ['KeyK','л'], ['KeyL','д'], ['Semicolon','ж',], ['Quote','э',], ['Enter','Enter', 'Enter'],
             ['ShiftLeft','Shift','Shift'], ['KeyZ','я'], ['KeyX','ч'],['KeyC','с'], ['KeyV','м'], ['KeyB','и'], ['KeyN','т'],
             ['KeyM', 'ь'], ['Comma','б'], ['Period','ю'], ['Slash','.',','], ['ArrowUp','up','up'], ['ShiftRight', 'Shift','Shift'],
-            ['ControlLeft','Ctrl','Ctrl'], ['AltLeft','Alt','Alt'], ['Space', '', ''], ['AltRight', 'Alt','Alt'], ['ControlRight', 'Ctrl','Ctrl'],
+            ['ControlLeft','Ctrl','Ctrl'], ['AltLeft','Alt','Alt'], 
+            ['Space', 'Left CTRL + Left Shift  for language switch', 'Left CTRL + Left Shift  for language switch'], 
+            ['AltRight', 'Alt','Alt'], ['ControlRight', 'Ctrl','Ctrl'],
             ['ArrowLeft','left','left'], ['ArrowDown', 'down','down'], ['ArrowRight', 'right','right']
            ],
 
@@ -337,13 +341,17 @@ class cVKeyboard {
       Tab: {
         down: (evt) => {
           this.setPressed(evt);
-          evt.preventDefault();
+          if(evt.preventDefault){
+            evt.preventDefault();
+          };
         },
         
         up: (evt) => {
           this.setNoPressed(evt);
-          this.putCharToText('  ');
-          evt.preventDefault();
+          this.putCharToText('    ');
+          if(evt.preventDefault){
+            evt.preventDefault();
+          };
         }
       },
       Enter: {
@@ -352,6 +360,9 @@ class cVKeyboard {
         },
         up: (evt) => {
           this.setNoPressed(evt);
+        },
+        mouseClick: () =>{
+          this.putCharToText('\n');
         }
       },
       Space:{         
@@ -363,9 +374,33 @@ class cVKeyboard {
         },
         press: (evt) => {
           this.putCharToText(' ');
-          evt.preventDefault();
+          if(evt.preventDefault){
+            evt.preventDefault();
+          };
         }
 
+      },
+      Backspace: {
+        down: (evt) => {
+          this.setPressed(evt);
+        },
+        up: (evt) => {
+          this.setNoPressed(evt);
+        },
+        mouseClick: () =>{
+          this.removeCharLeft();
+        }
+      },
+      Delete: {
+        down: (evt) => {
+          this.setPressed(evt);
+        },
+        up: (evt) => {
+          this.setNoPressed(evt);
+        },
+        mouseClick: () =>{
+          this.removeCharRight();
+        }
       }
     }
     
@@ -401,7 +436,9 @@ class cVKeyboard {
       
       for(let j = 0; j < this.keysProp[i].length; j++){
         const el = this.addDomElement('div', 'vKey', `Key_${this.keysProp[i][j].code}`, `vKeyboardRow${i}` );
-        
+        el.addEventListener('mousedown', this.onKeyMousedownEventListener.bind(this));
+        el.addEventListener('mouseup', this.onKeyMouseupEventListener.bind(this));
+        el.addEventListener('click', this.onKeyMouseclickEventListener.bind(this));  
         if(Object.keys(this.keysProp[i][j]).indexOf('width') != -1){
           el.style.width = this.keysProp[i][j].width;
         }
@@ -484,7 +521,9 @@ class cVKeyboard {
     if (!(evt.code in this.specKeysFunctions)){
       const vKey = document.getElementById(`Key_${evt.code}`);
       this.putCharToText(vKey.innerText);
-      evt.preventDefault();
+      if(evt.preventDefault){
+        evt.preventDefault();
+      };
     }else{
       if('press' in this.specKeysFunctions[evt.code]){
         this.specKeysFunctions[evt.code].press(evt);
@@ -492,10 +531,45 @@ class cVKeyboard {
     }  
   }
 
+  onKeyMousedownEventListener(evt){
+    const evt_code = evt.srcElement.id.split('_')[1];
+    this.keyDownEventListener({code: evt_code});
+    if(evt.preventDefault){
+      evt.preventDefault();
+    };
+  }
+  
+  onKeyMouseupEventListener(evt){
+    const evt_code = evt.srcElement.id.split('_')[1];
+    this.keyUpEventListener({code: evt_code});
+    if(evt.preventDefault){
+      evt.preventDefault();
+    };
+  }
+
+   onKeyMouseclickEventListener(evt){
+    const evt_code = evt.srcElement.id.split('_')[1];
+    if( (evt_code in this.specKeysFunctions) && 'mouseClick' in this.specKeysFunctions[evt_code]){
+      this.specKeysFunctions[evt_code].mouseClick();
+    }else{
+      this.keyPressEventListener({code: evt_code});
+    }
+    if(evt.preventDefault){
+      evt.preventDefault();
+    };
+  }
+
   putCharToText(char){
     this.elText.value += char;
   }
 
+  removeCharLeft(){
+    console.log(typeof (this.elText.value));
+  }
+  
+  removeCharRight(){
+    console.log(typeof (this.elText.value));
+  }
   myXOR (a, b){
     return ( a || b ) && !( a && b );
   }
