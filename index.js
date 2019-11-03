@@ -338,11 +338,9 @@ class cVKeyboard {
         },
         mouseDown: (evt) => {
           this.setPressed(evt);
-          //this.leftCtrlPressed = true;
         },
         mouseUp: (evt) => {
           this.setNoPressed(evt);
-          //this.leftCtrlPressed = false;
         },
         
         mouseClick: (evt) =>{
@@ -583,6 +581,7 @@ class cVKeyboard {
         vKey.classList.remove('pressedKey');
       }
     }
+    this.elText.focus();
   }
 
   keyPressEventListener(evt){
@@ -620,7 +619,8 @@ class cVKeyboard {
       if(evt.preventDefault){
         evt.preventDefault();
       }
-  }
+    }
+    this.elText.focus();
   }
 
    onKeyMouseclickEventListener(evt){
@@ -633,19 +633,29 @@ class cVKeyboard {
     if(evt.preventDefault){
       evt.preventDefault();
     };
+    this.elText.focus();
+    console.log(this.elText.selectionStart);
   }
 
   putCharToText(char){
-    this.elText.value += char;
+    const cursorPosition = this.elText.selectionStart;
+    let startStr = this.elText.value.slice(0,cursorPosition);
+    startStr += char;
+    this.elText.value = startStr + this.elText.value.slice(cursorPosition,this.elText.value.length);
+    this.elText.selectionStart = cursorPosition+1;
+    this.elText.selectionEnd = cursorPosition+1;
   }
 
   removeCharLeft(){
-    console.log(typeof (this.elText.value));
+    let arr = Array.from(this.elText.value);
+    arr.pop();
+    this.elText.value = arr.join('');
   }
   
   removeCharRight(){
-    console.log(typeof (this.elText.value));
+   this.removeCharLeft();
   }
+
   myXOR (a, b){
     return ( a || b ) && !( a && b );
   }
