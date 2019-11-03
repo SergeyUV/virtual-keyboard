@@ -3,8 +3,10 @@ class cVKeyboard {
   constructor(){
     this.vKeyboardRows = 5;
     this.lang = 'en';
-    this.shiftPressed = 0; //0 - not pressed, 1 - pressed;
+    this.leftShiftPressed = 0; //0 - not pressed, 0 - pressed;
+    this.rightShiftPressed = 0; //0 - not pressed, 0 - pressed;
     this.ctlPressed = 0;
+    this.altPressed = 0;
     this.keysProp = [
       //row0
       [
@@ -239,26 +241,78 @@ class cVKeyboard {
     this.keyboardLangs = 
       { en: [['Backquote', '`', '~'], ['Digit1','1'], ['Digit2','2'], ['Digit3','3'], ['Digit4','4'], ['Digit5','5'],
              ['Digit6','6'], ['Digit7','7'], ['Digit8','8'], ['Digit9','9'], ['Digit0','0'],
-             ['Minus','-'], ['Equal','='], ['Backspace','Backspace'], ['Tab','Tab'], ['KeyQ','q'], ['KeyW','w'],    
+             ['Minus','-'], ['Equal','='], ['Backspace','Backspace','Backspace'], ['Tab','Tab','Tab'], ['KeyQ','q'], ['KeyW','w'],    
              ['KeyE','e'], ['KeyR','r'], ['KeyT','t'], ['KeyY','y'], ['KeyU','u'], ['KeyI','i'], ['KeyO','o'],
-             ['KeyP','p'], ['BracketLeft','['], ['BracketRight',']'], ['Backslash','\\'], ['Delete', 'Del'],
-             ['CapsLock','Caps'], ['KeyA','a'], ['KeyS','s'], ['KeyD','d'], ['KeyF','f'], ['KeyG','g'], ['KeyH','h'],
-             ['KeyJ','j'], ['KeyK','k'], ['KeyL','l'], ['Semicolon',':'], ['Quote','\''], ['Enter','Enter'],
-             ['ShiftLeft','Shift'], ['KeyZ','z'], ['KeyX','x'],['KeyC','c'], ['KeyV','v'], ['KeyB','b'], ['KeyN','n'],
-             ['KeyM', 'm'], ['Comma',','], ['Period','.'], ['Slash','/'], ['ArrowUp','up'], ['ShiftRight', 'Shift'],
-             ['ControlLeft','Ctrl'], ['AltLeft','Alt'], ['Space', ' '], ['AltRight', 'Alt'], ['ControlRight', 'Ctrl'],
-             ['ArrowLeft','left'], ['ArrowDown', 'down'], ['ArrowRight', 'right']
+             ['KeyP','p'], ['BracketLeft','['], ['BracketRight',']'], ['Backslash','\\','|'], ['Delete', 'Del','Del'],
+             ['CapsLock','Caps','Caps'], ['KeyA','a'], ['KeyS','s'], ['KeyD','d'], ['KeyF','f'], ['KeyG','g'], ['KeyH','h'],
+             ['KeyJ','j'], ['KeyK','k'], ['KeyL','l'], ['Semicolon',':'], ['Quote','\''], ['Enter','Enter', 'Enter'],
+             ['ShiftLeft','Shift','Shift'], ['KeyZ','z'], ['KeyX','x'],['KeyC','c'], ['KeyV','v'], ['KeyB','b'], ['KeyN','n'],
+             ['KeyM', 'm'], ['Comma',',','<'], ['Period','.','>'], ['Slash','/','?'], ['ArrowUp','up','up'], ['ShiftRight', 'Shift','Shift'],
+             ['ControlLeft','Ctrl','Ctrl'], ['AltLeft','Alt','Alt'], ['Space', ' '], ['AltRight', 'Alt','Alt'], ['ControlRight', 'Ctrl','Ctrl'],
+             ['ArrowLeft','left','left'], ['ArrowDown', 'down','down'], ['ArrowRight', 'right','right']
             ],
+        
       };
     
+    this.specKeysFunctions = {
+      ShiftLeft: {
+        down: () => {
+     
+          if(this.leftShiftPressed === 0){
+            this.leftShiftPressed = 1;
+          }
+          
+          if(this.leftShiftPressed === 1){
+            this.retextKeys();
+          }
+        },
+        
+        up: () => {
+
+          if(this.leftShiftPressed === 1){
+            this.leftShiftPressed = 0;
+          }
+
+          if(this.leftShiftPressed === 0){
+            this.retextKeys();
+          }
+        }
+      },
+      
+      ShiftRight: {
+        down: () => {
+     
+          if(this.leftShiftPressed === 0){
+            this.leftShiftPressed = 1;
+          }
+          
+          if(this.leftShiftPressed === 1){
+            this.retextKeys();
+          }
+        },
+        
+        up: () => {
+          
+          if(this.leftShiftPressed === 1){
+            this.leftShiftPressed = 0;
+          }
+
+          if(this.leftShiftPressed === 0){
+            this.retextKeys();
+          }
+        }
+      }
+    }
     this.makeDOM();
   }
 
   makeDOM() {
     
     this.elText = this.addDomElement('textArea','myInputArea');
-    this.elText.addEventListener('keydown',this.keyDownEventListener);
-    this.elText.addEventListener('keyup',this.keyUpEventListener);
+    //this.elText.addEventListener('keydown',this.keyDownEventListener);
+    //this.elText.addEventListener('keyup',this.keyUpEventListener);
+    this.elText.addEventListener('keydown',this.keyDownEventListener.bind(this));
+    this.elText.addEventListener('keyup',this.keyUpEventListener.bind(this));
     
     this.addDomElement('div','vKeyboard','vKeyboardId');
     
@@ -274,11 +328,10 @@ class cVKeyboard {
 
         if(Object.keys(this.keysProp[i][j]).indexOf('backgroundStyle') != -1){
           el.classList.add(this.keysProp[i][j].backgroundStyle);
-        }
-        
-        this.addKeyText(this.keysProp[i][j].code);
+        }        
       }
     }
+    this.retextKeys();
     this.elText.focus();
   }
 
@@ -292,16 +345,23 @@ class cVKeyboard {
     return el;
   }
 
-  addKeyText(keyCode){
-    debugger;
+  retextKeys(){
+    let vKeys = document.getElementsByClassName('vKey');
     let keyTexts = this.keyboardLangs[this.lang];
-    let key = document.getElementsByClassName('vKey')[`Key_${keyCode}`];
-    let keyLangTexts = keyTexts.find((item)=>{ 
-      if(item[0] == keyCode){ return true; } 
-      return false;
-    });
-    
-    key.innerText = keyLangTexts[1+this.shiftPressed];
+    let keyText;
+    const shiftPressed =  this.leftShiftPressed || this.rightShiftPressed;    
+    for(let i = 0; i< vKeys.length; i++){
+      let keyCode = vKeys[i].id.split('_')[1];
+      
+      keyText = keyTexts.find((item)=>{ 
+        if(item[0] == keyCode){ return true; } 
+        return false;
+      });
+
+      vKeys[i].innerText = (keyText[1+shiftPressed])?keyText[1+shiftPressed] : 
+                            (shiftPressed == 1)? vKeys[i].innerText.toUpperCase() :vKeys[i].innerText.toLowerCase()  ;
+    }
+
   }
   
   keyDownEventListener(evt){
@@ -309,7 +369,11 @@ class cVKeyboard {
     if(vKey){
       vKey.classList.add('pressedKey');
     }
-    console.log(evt.code);
+    
+    if (evt.code in this.specKeysFunctions){
+      this.specKeysFunctions[evt.code].down();
+    }
+    //console.log(evt.code);
     evt.preventDefault();
   }
 
@@ -317,6 +381,10 @@ class cVKeyboard {
     const vKey = document.getElementById(`Key_${evt.code}`);
     if(vKey){
       vKey.classList.remove('pressedKey');
+    }
+
+    if (evt.code in this.specKeysFunctions){
+      this.specKeysFunctions[evt.code].up();
     }
     evt.preventDefault();
     
